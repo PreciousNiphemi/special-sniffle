@@ -6,31 +6,22 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
 
-async function getTextFromHtml(htmlContent) {
+function getTextFromHtml(htmlContent) {
   const $ = cheerio.load(htmlContent);
   $('script').remove();
   $('style').remove();
-  $('br').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('span').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('div').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('a').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('p').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('ul').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('li').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
+
+  function traverse(node) {
+    if (node && node.type === 'text') {
+      // Add a space before and after the text
+      node.data = ' ' + node.data + ' ';
+    } else if (node && node.children) {
+      node.children.forEach(traverse);
+    }
+  }
+
+  traverse($('body')[0]);
+
   return $('body').text();
 }
 
