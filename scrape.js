@@ -4,7 +4,7 @@ const fs = require('fs');
 const csv = require('fast-csv');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
-const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b(?!.*(@.*x.*|\.jpg|\.png|\.jpeg|\.gif|\.bmp|\.svg))/g;
 
 function getTextFromHtml(htmlContent) {
   const $ = cheerio.load(htmlContent);
@@ -34,10 +34,18 @@ async function crawlWebsite(url) {
   }
 
   const text = await getTextFromHtml(response.data);
-  const foundEmails = text.match(EMAIL_REGEX) || [];
+  let foundEmails = text.match(EMAIL_REGEX) || [];
+
+  // Filter out image URLs
+  const imageExtensions = ['.jpg', '.png', '.jpeg', '.gif', '.bmp', '.svg'];
+  foundEmails = foundEmails.filter(email => {
+    return !imageExtensions.some(extension => email.includes(extension));
+  });
+
   console.log("FOUND EMAILS: ", foundEmails)
   return foundEmails;
 }
+
 
 async function main() {
   let websites = [];
