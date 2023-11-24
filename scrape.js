@@ -30,11 +30,40 @@ async function crawlWebsite(url) {
   try {
     response = await axios.get(url);
   } catch (error) {
+    console.error(`Error fetching URL ${url}: ${error.message}`);
     return []; // Return an empty array if there's an error
   }
 
   const text = await getTextFromHtml(response.data);
+
+
   let foundEmails = text.match(EMAIL_REGEX) || [];
+
+  // Extract all internal links
+  const $ = cheerio.load(response.data);
+  const links = [];
+  $('a').each((i, link) => {
+    const href = $(link).attr('href');
+    if (href && href.startsWith('/') && !href.startsWith('//')) {
+      links.push(url + href);
+    }
+  });
+
+  // Visit each link and check for emails
+  for (const link of links) {
+    console.log(`Visiting link: ${link}`);  // Log the link
+    try {
+      response = await axios.get(link);
+    } catch (error) {
+      console.error(`Error fetching URL ${link}: ${error.message}`);
+      continue; // Skip to the next link if there's an error
+    }
+
+    const text = await getTextFromHtml(response.data);
+    const emails = text.match(EMAIL_REGEX) || [];
+    console.log("EMAILS", emails)
+    foundEmails.push(...emails);
+  }
 
   // Filter out image URLs
   const imageExtensions = ['.jpg', '.png', '.jpeg', '.gif', '.bmp', '.svg'];
@@ -45,7 +74,6 @@ async function crawlWebsite(url) {
   console.log("FOUND EMAILS: ", foundEmails)
   return foundEmails;
 }
-
 
 async function main() {
   let websites = [];
