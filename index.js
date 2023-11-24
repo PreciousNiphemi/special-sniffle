@@ -7,23 +7,32 @@ const csvWriter = require('fast-csv').writeToPath;
 const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
 
 async function getTextFromHtml(htmlContent) {
-  const $ = cheerio.load(htmlContent);
-  $('script').remove();
-  $('style').remove();
-  $('br').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('span').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('div').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  $('a').each(function() {
-    $(this).replaceWith(' ' + $(this).text() + ' ');
-  });
-  return $('body').text();
-}
+    const $ = cheerio.load(htmlContent);
+    $('script').remove();
+    $('style').remove();
+    $('br').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    $('span').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    $('div').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    $('a').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    $('p').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    $('ul').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    $('li').each(function() {
+      $(this).replaceWith(' ' + $(this).text() + ' ');
+    });
+    return $('body').text();
+  }
 
 async function crawlWebsite(url) {
   let response;
