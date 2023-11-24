@@ -6,4 +6,4 @@
 
 [] Run "npm install" to install the dependencies.
 
-[] Run "node index.js" to run the app
+[] Run "node scrape.js" to run the app
